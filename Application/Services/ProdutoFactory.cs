@@ -8,7 +8,28 @@ public static class ProdutoFactory
 {
     public static Produto Criar(string nome, string descricao, decimal preco, int estoque)
     {
-        // TODO: Implementar regras e retornar instância pronta.
-        throw new NotImplementedException();
+
+        // Validações de entrada
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new ArgumentException("Nome não pode ser vazio.", nameof(nome));
+        if (string.IsNullOrWhiteSpace(descricao))
+            throw new ArgumentException("Descrição não pode ser vazia.", nameof(descricao));
+        if (preco <= 0)
+            throw new ArgumentException("Preço deve ser maior que zero.", nameof(preco));
+        if (estoque < 0)
+            throw new ArgumentException("Estoque não pode ser negativo.", nameof(estoque));
+        
+        var nomeLimpo = nome.Trim();
+        var descricaoLimpa = descricao.Trim();
+        var precoArredondado = Math.Round(preco, 2);
+        var estoqueFinal = Math.Max(estoque, 0);
+        var produto = new Produto();
+        produto.Nome = nomeLimpo;
+        produto.Descricao = descricaoLimpa;
+        produto.Preco = precoArredondado;
+        produto.Estoque = estoqueFinal;
+        produto.DataCriacao = DateTime.Now;
+
+        return produto;
     }
 }
