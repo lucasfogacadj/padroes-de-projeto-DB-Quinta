@@ -18,7 +18,7 @@ public static class ProdutoFactory
             throw new ArgumentException("Preço deve ser maior que zero.", nameof(preco));
         if (estoque < 0)
             throw new ArgumentException("Estoque não pode ser negativo.", nameof(estoque));
-        
+
         var nomeLimpo = nome.Trim();
         var descricaoLimpa = descricao.Trim();
         var precoArredondado = Math.Round(preco, 2);
@@ -33,3 +33,19 @@ public static class ProdutoFactory
         return produto;
     }
 }
+
+/*
+Uma Factory pode ser considerada overengineering nas seguintes situações:
+
+1. Quando a criação do objeto é simples e não requer validações complexas
+2. Quando há poucos objetos sendo criados no sistema
+3. Quando não há variações na lógica de criação
+4. Quando o objeto não tem invariantes importantes para manter
+5. Em projetos pequenos onde a complexidade adicional não traz benefícios claros
+
+Neste caso específico, a Factory se justifica pois:
+- Centraliza validações importantes
+- Garante invariantes do domínio (preço > 0, estoque >= 0)
+- Padroniza a criação de produtos em todo sistema
+- Facilita manutenção futura das regras de criação
+*/
