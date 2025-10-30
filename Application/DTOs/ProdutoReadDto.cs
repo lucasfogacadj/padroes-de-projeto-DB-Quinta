@@ -5,10 +5,10 @@ namespace Application.DTOs;
 // Decidir padrão de nome (PascalCase / camelCase) conforme política de serialização.
 
 public record ProdutoReadDto(
-	int Id,
+	int Id, // frontend precisa do ID para lógica de negócio
 	string Nome,
 	string Descricao,
 	decimal Preco,
 	int Estoque,
-	DateTime DataCriacao
+	DateTime DataCriacao // frontend pode precisa para exibição de quanto um produto foi criado (pode ou não precisa)
 );
