@@ -1,47 +1,50 @@
 using Application.Interfaces;
+
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Persistence;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories;
-
-// TODO (Grupo Repository): Implementar métodos usando AppDbContext.
-// Focar em persistência apenas. NÃO adicionar regras de negócio.
-// Discutir no PR: vantagens e possíveis redundâncias do padrão.
-public class ProdutoRepository : IProdutoRepository
+namespace Infrastructure.Repositories
 {
-    private readonly AppDbContext _context;
-
-    public ProdutoRepository(AppDbContext context)
+    public class ProdutoRepository : IProdutoRepository
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    public Task<IEnumerable<Produto>> GetAllAsync(CancellationToken ct = default)
-    {
-        // TODO: retornar lista com AsNoTracking.
-        throw new NotImplementedException();
-    }
+        public ProdutoRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
-    public Task<Produto?> GetByIdAsync(int id, CancellationToken ct = default)
-    {
-        // TODO: usar FindAsync.
-        throw new NotImplementedException();
-    }
+        public async Task<IEnumerable<Produto>> GetAllAsync(CancellationToken ct = default)
+        {
+            return await _context.Produtos
+                .AsNoTracking()
+                .ToListAsync(ct);
+        }
 
-    public Task AddAsync(Produto produto, CancellationToken ct = default)
-    {
-        // TODO: AddAsync(produto, ct)
-        throw new NotImplementedException();
-    }
+        public async Task<Produto?> GetByIdAsync(int id, CancellationToken ct = default)
+        {
+            return await _context.Produtos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id, ct);
+        }
 
-    public Task RemoveAsync(Produto produto, CancellationToken ct = default)
-    {
-        // TODO: _context.Remove(produto)
-        throw new NotImplementedException();
-    }
+        public async Task AddAsync(Produto produto, CancellationToken ct = default)
+        {
+            await _context.Produtos.AddAsync(produto, ct);
+        }
 
-    public Task SaveChangesAsync(CancellationToken ct = default)
-    {
-        // TODO: _context.SaveChangesAsync(ct)
-        throw new NotImplementedException();
+        public Task RemoveAsync(Produto produto, CancellationToken ct = default)
+        {
+            _context.Produtos.Remove(produto);
+            return Task.CompletedTask;
+        }
+
+        public async Task SaveChangesAsync(CancellationToken ct = default)
+        {
+            await _context.SaveChangesAsync(ct);
+        }
     }
 }
