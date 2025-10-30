@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Interfaces;
 
 namespace Application.Services;
@@ -30,7 +31,7 @@ public class ProdutoService : IProdutoService
         return await _repo.GetByIdAsync(id, ct);        
     }
 
-    public async Task<Produto> CriarAsync(string nome, string descricao, decimal preco, int estoque, CancellationToken ct = default)
+    public async Task<ProdutoReadDto> CriarAsync(string nome, string descricao, decimal preco, int estoque, CancellationToken ct = default)
     {
         // TODO: Integrar com ProdutoFactory.Criar e depois persistir via repository.
         // TODO: Tratar regras: nome não vazio, preço > 0, estoque >= 0, trimming.
@@ -41,7 +42,8 @@ public class ProdutoService : IProdutoService
         var produto = ProdutoFactory.Criar(nome, descricao, preco, estoque);
 
         await _repo.AddAsync(produto);
-        return produto;
+        var produtoDTO = MappingExtensions.ToReadDto(produto);
+        return produtoDTO;
     }
 
     public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
