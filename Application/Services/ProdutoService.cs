@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Interfaces;
 
 namespace Application.Services;
@@ -15,28 +16,56 @@ public class ProdutoService : IProdutoService
         _repo = repo;
     }
 
-    public Task<IEnumerable<Produto>> ListarAsync(CancellationToken ct = default)
+    public async Task<IEnumerable<Produto>> ListarAsync(CancellationToken ct = default)
     {
         // TODO: Adicionar possibilidade de filtros futuros (Specification Pattern em fases posteriores)
-        throw new NotImplementedException();
+        return await _repo.GetAllAsync(ct);
     }
 
-    public Task<Produto?> ObterAsync(int id, CancellationToken ct = default)
+    public async Task<Produto?> ObterAsync(int id, CancellationToken ct = default)
     {
         // TODO: Validar id > 0 e talvez normalizar algum aspecto.
-        throw new NotImplementedException();
+        if (id <= 0)
+            return null;
+
+        return await _repo.GetByIdAsync(id, ct);        
     }
 
-    public Task<Produto> CriarAsync(string nome, string descricao, decimal preco, int estoque, CancellationToken ct = default)
+    public async Task<ProdutoReadDto> CriarAsync(string nome, string descricao, decimal preco, int estoque, CancellationToken ct = default)
     {
         // TODO: Integrar com ProdutoFactory.Criar e depois persistir via repository.
         // TODO: Tratar regras: nome não vazio, preço > 0, estoque >= 0, trimming.
-        throw new NotImplementedException();
+
+        if (nome == "" || preco <= 0 || estoque >= 0)
+            throw new NotImplementedException();
+
+        var produto = ProdutoFactory.Criar(nome, descricao, preco, estoque);
+
+        await _repo.AddAsync(produto);
+        var produtoDTO = MappingExtensions.ToReadDto(produto);
+        return produtoDTO;
     }
 
-    public Task<bool> RemoverAsync(int id, CancellationToken ct = default)
+    public async Task<bool> RemoverAsync(int id, CancellationToken ct = default)
     {
         // TODO: Buscar, validar existência e remover.
+        if (id <= 0)
+        {
+            return false;
+        }
+
+        var produtoParaRemover = await _repo.GetByIdAsync(id, ct);
+
+        if (produtoParaRemover == null)
+        {
+            return false; 
+        }
+
+        await _repo.RemoveAsync(produtoParaRemover, ct);
+
+        return true;
+
         throw new NotImplementedException();
     }
+    
 }
