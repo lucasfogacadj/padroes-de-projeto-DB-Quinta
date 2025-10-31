@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Interfaces;
+using AutoMapper;
 
 namespace Application.Services;
 
@@ -10,10 +11,12 @@ namespace Application.Services;
 public class ProdutoService : IProdutoService
 {
     private readonly IProdutoRepository _repo;
+    private readonly IMapper _mapper;
 
-    public ProdutoService(IProdutoRepository repo)
+    public ProdutoService(IProdutoRepository repo, IMapper mapper)
     {
         _repo = repo;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<Produto>> ListarAsync(CancellationToken ct = default)
@@ -36,13 +39,13 @@ public class ProdutoService : IProdutoService
         // TODO: Integrar com ProdutoFactory.Criar e depois persistir via repository.
         // TODO: Tratar regras: nome não vazio, preço > 0, estoque >= 0, trimming.
 
-        if (nome == "" || preco <= 0 || estoque >= 0)
-            throw new NotImplementedException();
+        // if (nome == "" || preco <= 0 || estoque >= 0)
+        //     throw new NotImplementedException();
 
         var produto = ProdutoFactory.Criar(nome, descricao, preco, estoque);
 
-        await _repo.AddAsync(produto);
-        var produtoDTO = MappingExtensions.ToReadDto(produto);
+        await _repo.AddAsync(produto, ct);
+        var produtoDTO = _mapper.Map<ProdutoReadDto>(produto);
         return produtoDTO;
     }
 

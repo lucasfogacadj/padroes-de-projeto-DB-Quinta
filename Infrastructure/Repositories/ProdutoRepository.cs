@@ -34,12 +34,13 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(Produto produto, CancellationToken ct = default)
         {
             await _context.Produtos.AddAsync(produto, ct);
+            await SaveChangesAsync(ct);
         }
 
-        public Task RemoveAsync(Produto produto, CancellationToken ct = default)
+        public async Task RemoveAsync(Produto produto, CancellationToken ct = default)
         {
             _context.Produtos.Remove(produto);
-            return Task.CompletedTask;
+            await SaveChangesAsync(ct);
         }
 
         public async Task SaveChangesAsync(CancellationToken ct = default)
