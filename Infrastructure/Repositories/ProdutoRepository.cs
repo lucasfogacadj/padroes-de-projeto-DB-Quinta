@@ -47,5 +47,11 @@ namespace Infrastructure.Repositories
         {
             await _context.SaveChangesAsync(ct);
         }
+
+        public async Task UpdateAsync(Produto produto, CancellationToken ct = default)
+        {
+            _context.Produtos.Update(produto);
+            await SaveChangesAsync(ct);
+        }
     }
 }

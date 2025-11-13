@@ -61,14 +61,64 @@ public class ProdutoService : IProdutoService
 
         if (produtoParaRemover == null)
         {
-            return false; 
+            return false;
         }
 
         await _repo.RemoveAsync(produtoParaRemover, ct);
 
         return true;
-
-        throw new NotImplementedException();
     }
-    
+
+    public async Task<Produto?> AtualizarAsync(int id, Produto produto, CancellationToken ct = default)
+    {
+        var produtoEncontrado = await _repo.GetByIdAsync(id, ct);
+
+        if (produtoEncontrado == null)
+        {
+            return null;
+        }
+
+        produtoEncontrado.Nome = produto.Nome;
+        produtoEncontrado.Descricao = produto.Descricao;
+        produtoEncontrado.Preco = produto.Preco;
+        produtoEncontrado.Estoque = produto.Estoque;
+
+        await _repo.UpdateAsync(produtoEncontrado, ct);
+        return produtoEncontrado;
+    }
+
+    public async Task<Produto?> AtualizarParcialAsync(int id, Produto produto, CancellationToken ct = default)
+    {
+        var produtoEncontrado = await _repo.GetByIdAsync(id, ct);
+
+        if (produtoEncontrado == null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(produto.Nome))
+        {
+            produtoEncontrado.Nome = produto.Nome;
+        }
+
+        if (!string.IsNullOrWhiteSpace(produto.Descricao))
+        {
+            produtoEncontrado.Descricao = produto.Descricao;
+        }
+
+        if (produto.Preco > 0)
+        {
+            produtoEncontrado.Preco = produto.Preco;
+        }
+
+        if (produto.Estoque > 0)
+        {
+            produtoEncontrado.Estoque = produto.Estoque;
+        }
+        
+        await _repo.UpdateAsync(produtoEncontrado, ct);
+        return produtoEncontrado;
+
+        
+    }
 }

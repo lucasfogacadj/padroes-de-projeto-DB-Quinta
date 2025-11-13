@@ -36,6 +36,26 @@ app.MapPost("/produtos", async (ProdutoCreateDto produtoDto, IProdutoService ser
     var produto = await service.CriarAsync(produtoDto.Nome, produtoDto.Descricao, produtoDto.Preco, produtoDto.Estoque, ct);
     return Results.Created($"/produtos/{produto.Id}", produto);
 });
+//Put atualização completa do produto
+app.MapPut("/produtos/{id}", async (int id, Produto produto, IProdutoService service, CancellationToken ct) =>
+{
+    var produtoAtualizado = await service.AtualizarAsync(id, produto);
+    if (produtoAtualizado == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(produtoAtualizado);
+});
+//Patch atualiza parcialmente o produto
+app.MapPatch("/produtos/{id}", async (int id, Produto produto, IProdutoService service, CancellationToken ct) =>
+{
+    var produtoAtualizado = await service.AtualizarParcialAsync(id, produto);
+    if (produtoAtualizado == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(produtoAtualizado);
+});
 // Delete produto
 app.MapDelete("/produtos/{id}", async (int id, IProdutoService service, CancellationToken ct) =>
 {
