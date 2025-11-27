@@ -6,6 +6,7 @@ using Application.Services;
 using AutoMapper;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data S
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
+builder.Services.AddValidatorsFromAssemblyContaining<ProdutoCreateDtoValidator>();
 
 var app = builder.Build();
 
@@ -31,8 +33,17 @@ app.MapGet("/produtos/{id}", async (int id, IProdutoService service, Cancellatio
     return produto != null ? Results.Ok(produto) : Results.NotFound();
 });
 //post criar produto
-app.MapPost("/produtos", async (ProdutoCreateDto produtoDto, IProdutoService service, CancellationToken ct) =>
+app.MapPost("/produtos", async (
+    ProdutoCreateDto produtoDto
+    , IProdutoService service
+    , CancellationToken ct
+    , IValidator<ProdutoCreateDto> validator) =>
 {
+    var validationResult = await validator.ValidateAsync(produtoDto, ct);
+    if(!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(validationResult.ToDictionary());
+    }
     var produto = await service.CriarAsync(produtoDto.Nome, produtoDto.Descricao, produtoDto.Preco, produtoDto.Estoque, ct);
     return Results.Created($"/produtos/{produto.Id}", produto);
 });
